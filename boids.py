@@ -1,4 +1,5 @@
 import random  # FOR RANDOM BEGINNINGS
+import math # FOR SQUARE ROOT
 from tkinter import *  # ALL VISUAL EQUIPMENT
 
 WIDTH = 800  # OF SCREEN IN PIXELS
@@ -10,8 +11,6 @@ SPEED_LIMIT = 500  # FOR BOID VELOCITY
 BOID_RADIUS = 3  # FOR BOIDS IN PIXELS
 OFFSET_START = 20  # FROM WALL IN PIXELS
 
-
-################################################################################
 
 def main():
     # Start the program.
@@ -92,10 +91,6 @@ def build_boids():
     boids = tuple(Boid(WIDTH, HEIGHT, OFFSET_START) for boid in range(BOIDS))
 
 
-################################################################################
-
-# TWO DIMENTIONAL VECTOR CLASS
-
 class TwoD:
 
     def __init__(self, x, y):
@@ -140,16 +135,80 @@ class TwoD:
         return ((self.x ** 2) + (self.y ** 2)) ** 0.5
 
 
-################################################################################
-
-# BOID RULE IMPLEMENTATION CLASS
 
 class Boid:
 
-    
+    def __init__(self, width, height, offset):
+        self.velocity = TwoD(400, 300)
+        self.position = TwoD(*self.random_start(width, height, offset))
+        self.viewrange = 10
 
-################################################################################
+    def difference(self, other):
+        return math.sqrt((other.position.x - self.position.x) ** 2 + (other.position.y - self.position.y) ** 2)
 
-# Execute the simulation.
+
+    def random_start(self, width, height, offset):
+        if random.randint(0, 1):
+            # along left and right
+            y = random.randint(1, height)
+            if random.randint(0, 1):
+                # along left
+                x = -offset
+            else:
+                # along right
+                x = width + offset
+        else:
+            # along top and bottom
+            x = random.randint(1, width)
+            if random.randint(0, 1):
+                # along top
+                y = -offset
+            else:
+                # along bottom
+                y = height + offset
+        return x, y
+
+    def update_velocity(self, boids):
+        v1 = self.rule1(boids)
+        v2 = self.rule2(boids)
+        v3 = self.rule2(boids)
+        self.temp = v1 + v2 + v3
+
+    def move(self):
+        self.velocity += self.temp
+        limit_speed(self)
+        self.position += self.velocity / 100
+
+    def rule1(self, boids):
+        # clumping
+        vector = TwoD(0, 0)
+        N = 2
+        for boid in boids:
+            if boid is not self and self.difference(boid) <= self.viewrange:
+                vector += boid.position
+                N += 1
+        vector /= N-1
+        return (vector - self.position) / 15
+
+    def rule2(self, boids):
+        # avoidance
+        vector = TwoD(0, 0)
+        for boid in boids:
+            if boid is not self and self.difference(boid) <= self.viewrange:
+                if (self.position - boid.position).mag() < 25:
+                    vector -= (boid.position - self.position)
+        return vector
+
+    def rule3(self, boids):
+        # schooling
+        vector = TwoD(0, 0)
+        N = 2
+        for boid in boids:
+            if boid is not self and self.difference(boid) <= self.viewrange:
+                vector += boid.velocity
+        vector /= N-1
+        return (vector - self.velocity) / 2
+
+
 if __name__ == '__main__':
     main()
