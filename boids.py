@@ -146,69 +146,7 @@ class TwoD:
 
 class Boid:
 
-    def __init__(self, width, height, offset):
-        self.velocity = TwoD(0, 0)
-        self.position = TwoD(*self.random_start(width, height, offset))
-
-    def random_start(self, width, height, offset):
-        if random.randint(0, 1):
-            # along left and right
-            y = random.randint(1, height)
-            if random.randint(0, 1):
-                # along left
-                x = -offset
-            else:
-                # along right
-                x = width + offset
-        else:
-            # along top and bottom
-            x = random.randint(1, width)
-            if random.randint(0, 1):
-                # along top
-                y = -offset
-            else:
-                # along bottom
-                y = height + offset
-        return x, y
-
-    def update_velocity(self, boids):
-        v1 = self.rule1(boids)
-        v2 = self.rule2(boids)
-        v3 = self.rule2(boids)
-        self.__temp = v1 + v2 + v3
-
-    def move(self):
-        self.velocity += self.__temp
-        limit_speed(self)
-        self.position += self.velocity / 100
-
-    def rule1(self, boids):
-        # clumping
-        vector = TwoD(0, 0)
-        for boid in boids:
-            if boid is not self:
-                vector += boid.position
-        vector /= len(boids) - 1
-        return (vector - self.position) / 7.5
-
-    def rule2(self, boids):
-        # avoidance
-        vector = TwoD(0, 0)
-        for boid in boids:
-            if boid is not self:
-                if (self.position - boid.position).mag() < 25:
-                    vector -= (boid.position - self.position)
-        return vector
-
-    def rule3(self, boids):
-        # schooling
-        vector = TwoD(0, 0)
-        for boid in boids:
-            if boid is not self:
-                vector += boid.velocity
-        vector /= len(boids) - 1
-        return (vector - self.velocity) / 2
-
+    
 
 ################################################################################
 
