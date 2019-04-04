@@ -131,7 +131,7 @@ class Boid:
     def __init__(self, width, height, offset):
         self.velocity = TwoD(400, 300)
         self.position = TwoD(*self.random_start(width, height, offset))
-        self.viewrange = 30
+        self.viewrange = 20
 
     def difference(self, other):
         return math.sqrt((other.position.x - self.position.x) ** 2 + (other.position.y - self.position.y) ** 2)
