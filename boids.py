@@ -8,7 +8,7 @@ BOIDS = 20  # IN SIMULATION
 WALL = 100  # FROM SIDE IN PIXELS
 WALL_FORCE = 10  # ACCELERATION PER MOVE
 SPEED_LIMIT = 500  # FOR BOID VELOCITY
-BOID_RADIUS = 3  # FOR BOIDS IN PIXELS
+BOID_RADIUS = 8  # FOR BOIDS IN PIXELS
 OFFSET_START = 20  # FROM WALL IN PIXELS
 
 
@@ -53,7 +53,7 @@ def draw():
         x2 = boid.position.x + BOID_RADIUS
         y2 = boid.position.y + BOID_RADIUS
 
-        graph.create_oval((x1, y1, x2, y2), fill='blue')
+        graph.create_oval((x1, y1, x2, y2), fill='white')
     graph.update()
 
 
