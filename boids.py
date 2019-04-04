@@ -1,31 +1,27 @@
-import random  # FOR RANDOM BEGINNINGS
-import math # FOR SQUARE ROOT
-from tkinter import *  # ALL VISUAL EQUIPMENT
+import random
+import math
+from tkinter import *
 
-WIDTH = 800  # OF SCREEN IN PIXELS
-HEIGHT = 600  # OF SCREEN IN PIXELS
-BOIDS = 20  # IN SIMULATION
-WALL = 100  # FROM SIDE IN PIXELS
-WALL_FORCE = 10  # ACCELERATION PER MOVE
-SPEED_LIMIT = 500  # FOR BOID VELOCITY
-BOID_RADIUS = 8  # FOR BOIDS IN PIXELS
-OFFSET_START = 20  # FROM WALL IN PIXELS
+WIDTH = 800
+HEIGHT = 600
+BOIDS = 20
+WALL = 100
+WALL_FORCE = 10
+SPEED_LIMIT = 500
+BOID_RADIUS = 8
+OFFSET_START = 20
 
 
 def main():
-    # Start the program.
     initialise()
     mainloop()
 
 
 def initialise():
-    # Setup simulation variables.
     build_boids()
     build_graph()
 
-
 def build_graph():
-    # Build GUI environment.
     global graph
     root = Tk()
     root.overrideredirect(True)
@@ -38,14 +34,12 @@ def build_graph():
 
 
 def update():
-    # Main simulation loop.
     draw()
     move()
     graph.after(40, update)
 
 
 def draw():
-    # Draw all boids.
     graph.delete(ALL)
     for boid in boids:
         x1 = boid.position.x - BOID_RADIUS
@@ -58,7 +52,6 @@ def draw():
 
 
 def move():
-    # Move all boids.
     for boid in boids:
         simulate_wall(boid)
     for boid in boids:
@@ -68,7 +61,6 @@ def move():
 
 
 def simulate_wall(boid):
-    # Create viewing boundaries.
     if boid.position.x < WALL:
         boid.velocity.x += WALL_FORCE
     elif boid.position.x > WIDTH - WALL:
@@ -80,13 +72,11 @@ def simulate_wall(boid):
 
 
 def limit_speed(boid):
-    # Limit boid speed.
     if boid.velocity.mag() > SPEED_LIMIT:
         boid.velocity /= boid.velocity.mag() / SPEED_LIMIT
 
 
 def build_boids():
-    # Create boids variable.
     global boids
     boids = tuple(Boid(WIDTH, HEIGHT, OFFSET_START) for boid in range(BOIDS))
 
@@ -132,7 +122,7 @@ class TwoD:
         return self
 
     def mag(self):
-        return ((self.x ** 2) + (self.y ** 2)) ** 0.5
+        return math.sqrt((self.x ** 2) + (self.y ** 2))
 
 
 
@@ -141,7 +131,7 @@ class Boid:
     def __init__(self, width, height, offset):
         self.velocity = TwoD(400, 300)
         self.position = TwoD(*self.random_start(width, height, offset))
-        self.viewrange = 10
+        self.viewrange = 30
 
     def difference(self, other):
         return math.sqrt((other.position.x - self.position.x) ** 2 + (other.position.y - self.position.y) ** 2)
@@ -149,22 +139,16 @@ class Boid:
 
     def random_start(self, width, height, offset):
         if random.randint(0, 1):
-            # along left and right
             y = random.randint(1, height)
             if random.randint(0, 1):
-                # along left
                 x = -offset
             else:
-                # along right
                 x = width + offset
         else:
-            # along top and bottom
             x = random.randint(1, width)
             if random.randint(0, 1):
-                # along top
                 y = -offset
             else:
-                # along bottom
                 y = height + offset
         return x, y
 
@@ -188,25 +172,26 @@ class Boid:
                 vector += boid.position
                 N += 1
         vector /= N-1
-        return (vector - self.position) / 15
+        return (vector - self.position) / 90
 
     def rule2(self, boids):
         # avoidance
         vector = TwoD(0, 0)
         for boid in boids:
             if boid is not self and self.difference(boid) <= self.viewrange:
-                if self.difference(boid) < 25:
+                if (self.position - boid.position).mag() < self.viewrange:
                     vector -= (boid.position - self.position)
         return vector / 2
 
     def rule3(self, boids):
         # schooling
         vector = TwoD(0, 0)
+        N = 2
         for boid in boids:
             if boid is not self and self.difference(boid) <= self.viewrange:
                 vector += boid.velocity
-        vector /= len(boids) - 1
-        return (vector - self.velocity) / 2
+        vector /= N-1
+        return (vector - self.velocity) / 8
 
 
 if __name__ == '__main__':
