@@ -53,7 +53,7 @@ def draw():
         x2 = boid.position.x + BOID_RADIUS
         y2 = boid.position.y + BOID_RADIUS
 
-        graph.create_oval((x1, y1, x2, y2), fill='red')
+        graph.create_oval((x1, y1, x2, y2), fill='blue')
     graph.update()
 
 
@@ -184,7 +184,7 @@ class Boid:
         vector = TwoD(0, 0)
         N = 2
         for boid in boids:
-            if boid is not self and self.difference(boid) <= self.viewrange:
+            if boid is not self:
                 vector += boid.position
                 N += 1
         vector /= N-1
@@ -195,18 +195,17 @@ class Boid:
         vector = TwoD(0, 0)
         for boid in boids:
             if boid is not self and self.difference(boid) <= self.viewrange:
-                if (self.position - boid.position).mag() < 25:
+                if self.difference(boid) < 25:
                     vector -= (boid.position - self.position)
-        return vector
+        return vector / 2
 
     def rule3(self, boids):
         # schooling
         vector = TwoD(0, 0)
-        N = 2
         for boid in boids:
             if boid is not self and self.difference(boid) <= self.viewrange:
                 vector += boid.velocity
-        vector /= N-1
+        vector /= len(boids) - 1
         return (vector - self.velocity) / 2
 
 
